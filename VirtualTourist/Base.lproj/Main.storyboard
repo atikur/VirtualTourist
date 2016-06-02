@@ -21,7 +21,7 @@
             </objects>
             <point key="canvasLocation" x="22" y="378"/>
         </scene>
-        <!--Travel Locations Map View Controller-->
+        <!--Virtual Tourist-->
         <scene sceneID="ysN-PA-YrE">
             <objects>
                 <viewController id="cAg-Ud-Fa3" customClass="TravelLocationsMapViewController" customModule="VirtualTourist" customModuleProvider="target" sceneMemberID="viewController">
@@ -36,17 +36,45 @@
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="sHp-hG-UWz">
                                 <rect key="frame" x="0.0" y="64" width="600" height="536"/>
                             </mapView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zc2-Av-zfL">
+                                <rect key="frame" x="0.0" y="550" width="600" height="50"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap Pins to Delete" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OU0-we-JGA">
+                                        <rect key="frame" x="231" y="14" width="139" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" red="1" green="0.2461692134" blue="0.22530633410000001" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstItem="OU0-we-JGA" firstAttribute="centerY" secondItem="Zc2-Av-zfL" secondAttribute="centerY" id="Gxm-fE-lNn"/>
+                                    <constraint firstItem="OU0-we-JGA" firstAttribute="centerX" secondItem="Zc2-Av-zfL" secondAttribute="centerX" id="IYp-1S-7ww"/>
+                                    <constraint firstAttribute="height" constant="50" id="VE1-By-FPO"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="HU2-ru-KfR" firstAttribute="top" secondItem="Zc2-Av-zfL" secondAttribute="bottom" id="43o-Ac-R8N"/>
                             <constraint firstItem="sHp-hG-UWz" firstAttribute="top" secondItem="BYk-t7-4Pz" secondAttribute="bottom" id="E2z-CV-l2x"/>
                             <constraint firstAttribute="trailing" secondItem="sHp-hG-UWz" secondAttribute="trailing" id="JfW-Nb-RGF"/>
                             <constraint firstItem="HU2-ru-KfR" firstAttribute="top" secondItem="sHp-hG-UWz" secondAttribute="bottom" id="djG-6c-2Vc"/>
                             <constraint firstItem="sHp-hG-UWz" firstAttribute="leading" secondItem="WGj-sW-UhZ" secondAttribute="leading" id="kaV-rX-5Ia"/>
+                            <constraint firstItem="Zc2-Av-zfL" firstAttribute="leading" secondItem="WGj-sW-UhZ" secondAttribute="leading" id="pEl-3M-p3X"/>
+                            <constraint firstAttribute="trailing" secondItem="Zc2-Av-zfL" secondAttribute="trailing" id="uab-g1-tLW"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="ZAA-4l-3jH"/>
+                    <navigationItem key="navigationItem" title="Virtual Tourist" id="ZAA-4l-3jH">
+                        <barButtonItem key="rightBarButtonItem" title="Edit" id="nCg-oQ-rkW">
+                            <connections>
+                                <action selector="editBarButtonTapped:" destination="cAg-Ud-Fa3" id="g3W-xe-T4v"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
+                        <outlet property="bottomInfoView" destination="Zc2-Av-zfL" id="VOr-Sm-dKg"/>
+                        <outlet property="editBarButton" destination="nCg-oQ-rkW" id="SCX-qk-RpO"/>
                         <outlet property="mapView" destination="sHp-hG-UWz" id="imT-kd-HbZ"/>
                     </connections>
                 </viewController>

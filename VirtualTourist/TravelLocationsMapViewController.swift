@@ -14,8 +14,17 @@ class TravelLocationsMapViewController: UIViewController {
     // MARK: - Properties
     
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var bottomInfoView: UIView!
+    @IBOutlet weak var editBarButton: UIBarButtonItem!
     
     let userDefaults = NSUserDefaults.standardUserDefaults()
+    
+    var isEditModeEnabled = false {
+        didSet {
+            editBarButton.title = isEditModeEnabled ? "Done" : "Edit"
+            bottomInfoView.hidden = !isEditModeEnabled
+        }
+    }
     
     // MARK: -
     
@@ -24,8 +33,14 @@ class TravelLocationsMapViewController: UIViewController {
         
         mapView.delegate = self
         
+        isEditModeEnabled = false
+        
         addGestureRecognizer()
         loadMapData()
+    }
+    
+    @IBAction func editBarButtonTapped(sender: UIBarButtonItem) {
+        isEditModeEnabled = !isEditModeEnabled
     }
     
     func addGestureRecognizer() {
@@ -35,11 +50,16 @@ class TravelLocationsMapViewController: UIViewController {
     }
     
     func longPressDetected(gestureRecognizer: UIGestureRecognizer) {
+        guard !isEditModeEnabled else {
+            return
+        }
+        
         if gestureRecognizer.state == .Began {
             let touchPoint = gestureRecognizer.locationInView(mapView)
             let mapCoordinate = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
             
             addAnnotation(mapCoordinate)
+            print("pin added...")
         }
     }
     
@@ -86,7 +106,16 @@ extension TravelLocationsMapViewController: MKMapViewDelegate {
     }
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
-        print(view.annotation?.coordinate)
+        if isEditModeEnabled {
+            guard let annotation = view.annotation else {
+                return
+            }
+            
+            mapView.removeAnnotation(annotation)
+            print("pin removed")
+        } else {
+            print("show photo collection!")
+        }
     }
 }
 
