@@ -24,7 +24,29 @@ class TravelLocationsMapViewController: UIViewController {
         
         mapView.delegate = self
         
+        addGestureRecognizer()
         loadMapData()
+    }
+    
+    func addGestureRecognizer() {
+        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(TravelLocationsMapViewController.longPressDetected(_:)))
+        longPressRecognizer.minimumPressDuration = 1.0
+        mapView.addGestureRecognizer(longPressRecognizer)
+    }
+    
+    func longPressDetected(gestureRecognizer: UIGestureRecognizer) {
+        if gestureRecognizer.state == .Began {
+            let touchPoint = gestureRecognizer.locationInView(mapView)
+            let mapCoordinate = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
+            
+            addAnnotation(mapCoordinate)
+        }
+    }
+    
+    func addAnnotation(coordinate: CLLocationCoordinate2D) {
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = coordinate
+        mapView.addAnnotation(annotation)
     }
     
     // MARK: - Save/Load Map Data
