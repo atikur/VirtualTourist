@@ -84,6 +84,10 @@ extension TravelLocationsMapViewController: MKMapViewDelegate {
         
         saveMapData(center, regionSpan: span)
     }
+    
+    func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
+        print(view.annotation?.coordinate)
+    }
 }
 
 extension TravelLocationsMapViewController {
