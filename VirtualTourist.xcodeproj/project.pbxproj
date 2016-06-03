@@ -13,6 +13,7 @@
 		245B29F41CFF1AB000F39F1D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 245B29F31CFF1AB000F39F1D /* Assets.xcassets */; };
 		245B29F71CFF1AB100F39F1D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 245B29F51CFF1AB100F39F1D /* LaunchScreen.storyboard */; };
 		245B29FF1CFF1D4F00F39F1D /* TravelLocationsMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 245B29FE1CFF1D4F00F39F1D /* TravelLocationsMapViewController.swift */; };
+		2473B9361D018ADB0084DAB7 /* FlickrClient+Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2473B9351D018ADB0084DAB7 /* FlickrClient+Constants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		245B29F61CFF1AB100F39F1D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		245B29F81CFF1AB100F39F1D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		245B29FE1CFF1D4F00F39F1D /* TravelLocationsMapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TravelLocationsMapViewController.swift; sourceTree = "<group>"; };
+		2473B9351D018ADB0084DAB7 /* FlickrClient+Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "FlickrClient+Constants.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +60,7 @@
 			children = (
 				245B29EC1CFF1AB000F39F1D /* AppDelegate.swift */,
 				241092931D00983100C6E00C /* FlickrClient.swift */,
+				2473B9351D018ADB0084DAB7 /* FlickrClient+Constants.swift */,
 				245B29FE1CFF1D4F00F39F1D /* TravelLocationsMapViewController.swift */,
 				245B29F01CFF1AB000F39F1D /* Main.storyboard */,
 				245B29F31CFF1AB000F39F1D /* Assets.xcassets */,
@@ -139,6 +142,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				245B29FF1CFF1D4F00F39F1D /* TravelLocationsMapViewController.swift in Sources */,
+				2473B9361D018ADB0084DAB7 /* FlickrClient+Constants.swift in Sources */,
 				245B29ED1CFF1AB000F39F1D /* AppDelegate.swift in Sources */,
 				241092941D00983100C6E00C /* FlickrClient.swift in Sources */,
 			);
