@@ -49,7 +49,9 @@ class FlickrClient: NSObject {
         return task
     }
     
-    func parseDataWithCompletionHandler(data: NSData, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
+    // MARK: - Helpers
+    
+    private func parseDataWithCompletionHandler(data: NSData, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
         do {
             let parsedResult = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
             completionHandler(result: parsedResult, error: nil)
@@ -57,6 +59,21 @@ class FlickrClient: NSObject {
             let userInfo = [NSLocalizedDescriptionKey: "Could not parse the data as JSON"]
             completionHandler(result: nil, error: NSError(domain: "parseDataWithCompletionHandler", code: 1, userInfo: userInfo))
         }
+    }
+    
+    private func flickrURLFromParameters(parameters: [String: AnyObject]) -> NSURL {
+        let components = NSURLComponents()
+        components.scheme = Flickr.APIScheme
+        components.host = Flickr.APIHost
+        components.path = Flickr.APIPath
+        components.queryItems = [NSURLQueryItem]()
+        
+        for (key, value) in parameters {
+            let queryItem = NSURLQueryItem(name: key, value: "\(value)")
+            components.queryItems!.append(queryItem)
+        }
+        
+        return components.URL!
     }
     
     // MARK: - Singleton

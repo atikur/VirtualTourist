@@ -8,6 +8,12 @@
 
 extension FlickrClient {
     
+    struct Flickr {
+        static let APIScheme = "https"
+        static let APIHost = "api.flickr.com"
+        static let APIPath = "/services/rest"
+    }
+    
     struct FlickParameterKeys {
         static let Method = "method"
         static let APIKey = "api_key"
