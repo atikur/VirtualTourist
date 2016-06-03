@@ -59,7 +59,6 @@ class TravelLocationsMapViewController: UIViewController {
             let mapCoordinate = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
             
             addAnnotation(mapCoordinate)
-            print("pin added...")
         }
     }
     
@@ -94,6 +93,15 @@ class TravelLocationsMapViewController: UIViewController {
         
         userDefaults.synchronize()
     }
+    
+    // MARK: -
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "ShowPhotoAlbum" {
+            let destinationVC = segue.destinationViewController as! PhotoAlbumCollectionViewController
+            destinationVC.annoation = sender as! MKAnnotation
+        }
+    }
 }
 
 extension TravelLocationsMapViewController: MKMapViewDelegate {
@@ -106,15 +114,14 @@ extension TravelLocationsMapViewController: MKMapViewDelegate {
     }
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
+        guard let annotation = view.annotation else {
+            return
+        }
+        
         if isEditModeEnabled {
-            guard let annotation = view.annotation else {
-                return
-            }
-            
             mapView.removeAnnotation(annotation)
-            print("pin removed")
         } else {
-            print("show photo collection!")
+            performSegueWithIdentifier("ShowPhotoAlbum", sender: annotation)
         }
     }
 }

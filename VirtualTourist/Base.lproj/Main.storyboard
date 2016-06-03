@@ -76,11 +76,30 @@
                         <outlet property="bottomInfoView" destination="Zc2-Av-zfL" id="VOr-Sm-dKg"/>
                         <outlet property="editBarButton" destination="nCg-oQ-rkW" id="SCX-qk-RpO"/>
                         <outlet property="mapView" destination="sHp-hG-UWz" id="imT-kd-HbZ"/>
+                        <segue destination="Fvg-9i-vNa" kind="show" identifier="ShowPhotoAlbum" id="2rY-0v-YzY"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bhZ-uU-u23" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="704" y="378"/>
+        </scene>
+        <!--Photo Album Collection View Controller-->
+        <scene sceneID="V6F-Ig-uAc">
+            <objects>
+                <viewController id="Fvg-9i-vNa" customClass="PhotoAlbumCollectionViewController" customModule="VirtualTourist" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="kzm-JU-NKI"/>
+                        <viewControllerLayoutGuide type="bottom" id="Ug8-bg-0DU"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Aji-Mr-oTD">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="tSJ-gq-4Oz" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1360" y="378"/>
         </scene>
     </scenes>
 </document>
