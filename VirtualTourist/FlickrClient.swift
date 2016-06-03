@@ -61,21 +61,6 @@ class FlickrClient: NSObject {
         }
     }
     
-    private func flickrURLFromParameters(parameters: [String: AnyObject]) -> NSURL {
-        let components = NSURLComponents()
-        components.scheme = Flickr.APIScheme
-        components.host = Flickr.APIHost
-        components.path = Flickr.APIPath
-        components.queryItems = [NSURLQueryItem]()
-        
-        for (key, value) in parameters {
-            let queryItem = NSURLQueryItem(name: key, value: "\(value)")
-            components.queryItems!.append(queryItem)
-        }
-        
-        return components.URL!
-    }
-    
     // MARK: - Singleton
     
     static let sharedInstance = FlickrClient()
