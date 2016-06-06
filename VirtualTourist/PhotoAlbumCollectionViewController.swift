@@ -15,6 +15,8 @@ class PhotoAlbumCollectionViewController: UIViewController {
     var isPhotoAlbumAvailable = false
     
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var infoLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,6 +27,7 @@ class PhotoAlbumCollectionViewController: UIViewController {
             downloadPhotos()
         }
         
+        infoLabel.hidden = true
         configureMapView()
     }
     
@@ -40,11 +43,22 @@ class PhotoAlbumCollectionViewController: UIViewController {
             photoURLs, errorString in
             
             guard let photoURLs = photoURLs else {
-                print("Error: \(errorString)")
+                self.displayError(errorString)
                 return
             }
             
             print("Total photos: \(photoURLs.count)")
+        }
+    }
+    
+    func displayError(errorString: String?) {
+        guard let errorString = errorString else {
+            return
+        }
+        
+        dispatch_async(dispatch_get_main_queue()) {
+            self.infoLabel.text = errorString
+            self.infoLabel.hidden = false
         }
     }
     
