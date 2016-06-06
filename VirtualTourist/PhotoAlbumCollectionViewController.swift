@@ -14,6 +14,8 @@ class PhotoAlbumCollectionViewController: UIViewController {
     var annoation: MKAnnotation!
     var isPhotoAlbumAvailable = false
     
+    @IBOutlet weak var mapView: MKMapView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -22,6 +24,15 @@ class PhotoAlbumCollectionViewController: UIViewController {
         } else {
             downloadPhotos()
         }
+        
+        configureMapView()
+    }
+    
+    func configureMapView() {
+        let region = MKCoordinateRegion(center: annoation.coordinate, span: MKCoordinateSpanMake(0.02, 0.02))
+        mapView.setRegion(region, animated: true)
+        
+        mapView.addAnnotation(annoation)
     }
     
     func downloadPhotos() {
