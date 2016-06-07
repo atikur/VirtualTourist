@@ -56,11 +56,13 @@ class TravelLocationsMapViewController: UIViewController {
         fetchedResultsController?.delegate = self
         do {
             try fetchedResultsController.performFetch()
-            if let pins = fetchedResultsController.fetchedObjects as? [Pin] {
-                for pin in pins {
-                    addAnnotation(pin.coordinate)
-                }
+            guard let pins = fetchedResultsController.fetchedObjects as? [Pin] else {
+                return
             }
+            for pin in pins {
+                addAnnotation(pin.coordinate)
+            }
+            
         } catch {
             print("Error while trying to perform a search.")
         }
@@ -86,9 +88,7 @@ class TravelLocationsMapViewController: UIViewController {
             let mapCoordinate = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
             
             let pin = Pin(coordinate: mapCoordinate, context: fetchedResultsController.managedObjectContext)
-            print("adding new pin...\(pin)")
-            
-            addAnnotation(mapCoordinate)
+            print("Adding new pin at coordinate: \(pin.coordinate)")
         }
     }
     
@@ -132,6 +132,36 @@ class TravelLocationsMapViewController: UIViewController {
             destinationVC.annoation = sender as! MKAnnotation
         }
     }
+    
+    // MARK: -
+    
+    func fetchedResultsChangeInsert(anObject: AnyObject) {
+        guard let pin = anObject as? Pin else {
+            return
+        }
+        
+        addAnnotation(pin.coordinate)
+        print("added")
+    }
+    
+    func fetchedResultsChangeDelete(anObject: AnyObject) {
+        guard let pin = anObject as? Pin else {
+            return
+        }
+        
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = pin.coordinate
+        mapView.removeAnnotation(annotation)
+        print("removed")
+    }
+    
+    func fetchedResultsChangeMove(anObject: AnyObject) {
+        print("move object")
+    }
+    
+    func fetchedResultsChangeUpdate(anObject: AnyObject) {
+        print("update object")
+    }
 }
 
 extension TravelLocationsMapViewController: NSFetchedResultsControllerDelegate {
@@ -139,13 +169,13 @@ extension TravelLocationsMapViewController: NSFetchedResultsControllerDelegate {
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
         case .Insert:
-            print("adding annotation!")
+            fetchedResultsChangeInsert(anObject)
         case .Delete:
-            print("deleting annotation!")
+            fetchedResultsChangeDelete(anObject)
         case .Update:
-            print("updating")
+            fetchedResultsChangeUpdate(anObject)
         case .Move:
-            print("moving")
+            fetchedResultsChangeMove(anObject)
         }
     }
     
