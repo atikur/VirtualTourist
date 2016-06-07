@@ -22,6 +22,7 @@ class PhotoAlbumCollectionViewController: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var infoLabel: UILabel!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     var photoURLs = [NSURL]()
     
@@ -45,6 +46,17 @@ class PhotoAlbumCollectionViewController: UIViewController {
         configureFlowLayout(view.frame.size.width)
     }
     
+    func showActivityIndicator(show: Bool) {
+        activityIndicator.hidden = !show
+        
+        if show {
+            activityIndicator.startAnimating()
+        } else {
+            activityIndicator.stopAnimating()
+            activityIndicator.removeFromSuperview()
+        }
+    }
+    
     func configureFlowLayout(width: CGFloat) {
         let dimension = (width - (2 * minLineSpacing)) / 3.0
         
@@ -61,6 +73,8 @@ class PhotoAlbumCollectionViewController: UIViewController {
     }
     
     func downloadPhotos() {
+        showActivityIndicator(true)
+        
         FlickrClient.sharedInstance.getPhotosForLocation(annoation.coordinate) {
             photoURLs, errorString in
             
@@ -81,6 +95,7 @@ class PhotoAlbumCollectionViewController: UIViewController {
         self.photoURLs = Array(photoURLs.prefix(photosCount))
         
         dispatch_async(dispatch_get_main_queue()) {
+            self.showActivityIndicator(false)
             self.collectionView.reloadData()
         }
     }
@@ -91,6 +106,7 @@ class PhotoAlbumCollectionViewController: UIViewController {
         }
         
         dispatch_async(dispatch_get_main_queue()) {
+            self.showActivityIndicator(false)
             self.infoLabel.text = errorString
             self.infoLabel.hidden = false
         }

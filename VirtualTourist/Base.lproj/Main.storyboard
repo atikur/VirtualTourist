@@ -128,11 +128,16 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="zXA-u8-1G0">
+                                <rect key="frame" x="290" y="290" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="2TT-v6-fFC" secondAttribute="trailing" id="CWz-IR-zBM"/>
                             <constraint firstItem="Ug8-bg-0DU" firstAttribute="top" secondItem="nEh-fb-cLf" secondAttribute="bottom" id="TCx-Ll-dhw"/>
+                            <constraint firstItem="zXA-u8-1G0" firstAttribute="centerY" secondItem="B5q-QY-15R" secondAttribute="centerY" id="UnN-33-xLJ"/>
+                            <constraint firstItem="zXA-u8-1G0" firstAttribute="centerX" secondItem="B5q-QY-15R" secondAttribute="centerX" id="Yde-gr-8rb"/>
                             <constraint firstAttribute="trailing" secondItem="nEh-fb-cLf" secondAttribute="trailing" id="cyQ-qV-hsi"/>
                             <constraint firstItem="2TT-v6-fFC" firstAttribute="leading" secondItem="Aji-Mr-oTD" secondAttribute="leading" id="eKS-U7-hTc"/>
                             <constraint firstItem="B5q-QY-15R" firstAttribute="centerX" secondItem="Aji-Mr-oTD" secondAttribute="centerX" id="gRr-9f-p06"/>
@@ -143,6 +148,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="zXA-u8-1G0" id="ytL-Qn-uIc"/>
                         <outlet property="collectionView" destination="nEh-fb-cLf" id="Y3d-2d-wMQ"/>
                         <outlet property="flowLayout" destination="6Aa-dp-F8I" id="Wlt-fD-E4W"/>
                         <outlet property="infoLabel" destination="B5q-QY-15R" id="Yh4-d1-BYN"/>
