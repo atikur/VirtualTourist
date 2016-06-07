@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class TravelLocationsMapViewController: UIViewController {
     
@@ -26,6 +27,8 @@ class TravelLocationsMapViewController: UIViewController {
         }
     }
     
+    var fetchedResultsController: NSFetchedResultsController!
+    
     // MARK: -
     
     override func viewDidLoad() {
@@ -37,6 +40,30 @@ class TravelLocationsMapViewController: UIViewController {
         
         addGestureRecognizer()
         loadMapData()
+        
+        loadPins()
+    }
+    
+    func loadPins() {
+        let stack = (UIApplication.sharedApplication().delegate as! AppDelegate).stack
+        
+        let fetchRequest = NSFetchRequest(entityName: "Pin")
+        fetchRequest.sortDescriptors = [
+            NSSortDescriptor(key: "latitude", ascending: true)
+        ]
+        
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: stack.context, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController?.delegate = self
+        do {
+            try fetchedResultsController.performFetch()
+            if let pins = fetchedResultsController.fetchedObjects as? [Pin] {
+                for pin in pins {
+                    addAnnotation(pin.coordinate)
+                }
+            }
+        } catch {
+            print("Error while trying to perform a search.")
+        }
     }
     
     @IBAction func editBarButtonTapped(sender: UIBarButtonItem) {
@@ -57,6 +84,9 @@ class TravelLocationsMapViewController: UIViewController {
         if gestureRecognizer.state == .Began {
             let touchPoint = gestureRecognizer.locationInView(mapView)
             let mapCoordinate = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
+            
+            let pin = Pin(coordinate: mapCoordinate, context: fetchedResultsController.managedObjectContext)
+            print("adding new pin...\(pin)")
             
             addAnnotation(mapCoordinate)
         }
@@ -102,6 +132,23 @@ class TravelLocationsMapViewController: UIViewController {
             destinationVC.annoation = sender as! MKAnnotation
         }
     }
+}
+
+extension TravelLocationsMapViewController: NSFetchedResultsControllerDelegate {
+    
+    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+        switch type {
+        case .Insert:
+            print("adding annotation!")
+        case .Delete:
+            print("deleting annotation!")
+        case .Update:
+            print("updating")
+        case .Move:
+            print("moving")
+        }
+    }
+    
 }
 
 extension TravelLocationsMapViewController: MKMapViewDelegate {
