@@ -132,8 +132,31 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource {
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoCell", forIndexPath: indexPath)
-        cell.backgroundView = UIImageView(image: UIImage(named: "placeholder")!)
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoCell", forIndexPath: indexPath) as! PhotoCollectionViewCell
+        cell.imageView.image = UIImage(named: "placeholder")
+        cell.activityIndicator.startAnimating()
+        
+        let url = photoURLs[indexPath.row]
+        let request = NSURLRequest(URL: url)
+        let task = FlickrClient.sharedInstance.session.dataTaskWithRequest(request) {
+            data, response, error in
+            
+            guard let data = data else {
+                return
+            }
+            
+            guard let image = UIImage(data: data) else {
+                return
+            }
+            
+            dispatch_async(dispatch_get_main_queue()) {
+                cell.activityIndicator.stopAnimating()
+                cell.activityIndicator.hidden = true
+                cell.imageView.image = image
+            }
+        }
+        task.resume()
+        
         return cell
     }
 }

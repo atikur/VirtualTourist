@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--Navigation Controller-->
@@ -111,14 +112,35 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PhotoCell" id="VoG-Um-rKh">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PhotoCell" id="VoG-Um-rKh" customClass="PhotoCollectionViewCell" customModule="VirtualTourist" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="140" height="140"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
                                             <rect key="frame" x="0.0" y="0.0" width="140" height="140"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="reZ-KM-tg8">
+                                                    <rect key="frame" x="8" y="8" width="124" height="124"/>
+                                                </imageView>
+                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="1By-Cv-Ioi">
+                                                    <rect key="frame" x="52" y="51" width="37" height="37"/>
+                                                </activityIndicatorView>
+                                            </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </view>
+                                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstItem="1By-Cv-Ioi" firstAttribute="centerY" secondItem="VoG-Um-rKh" secondAttribute="centerY" id="Fd6-AN-Lhw"/>
+                                            <constraint firstItem="1By-Cv-Ioi" firstAttribute="centerX" secondItem="VoG-Um-rKh" secondAttribute="centerX" id="HB8-Z6-iRa"/>
+                                            <constraint firstItem="reZ-KM-tg8" firstAttribute="top" secondItem="VoG-Um-rKh" secondAttribute="topMargin" id="WjP-UF-0cS"/>
+                                            <constraint firstItem="reZ-KM-tg8" firstAttribute="bottom" secondItem="VoG-Um-rKh" secondAttribute="bottomMargin" id="XE1-8N-hbM"/>
+                                            <constraint firstItem="reZ-KM-tg8" firstAttribute="leading" secondItem="VoG-Um-rKh" secondAttribute="leadingMargin" id="eUS-uU-x2g"/>
+                                            <constraint firstItem="reZ-KM-tg8" firstAttribute="trailing" secondItem="VoG-Um-rKh" secondAttribute="trailingMargin" id="hDr-Rd-Arh"/>
+                                        </constraints>
+                                        <connections>
+                                            <outlet property="activityIndicator" destination="1By-Cv-Ioi" id="g1R-9L-Wb9"/>
+                                            <outlet property="imageView" destination="reZ-KM-tg8" id="slW-66-U9D"/>
+                                        </connections>
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
