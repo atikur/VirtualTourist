@@ -145,13 +145,6 @@ class TravelLocationsMapViewController: UIViewController {
     }
     
     func fetchedResultsChangeDelete(anObject: AnyObject) {
-        guard let pin = anObject as? Pin else {
-            return
-        }
-        
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = pin.coordinate
-        mapView.removeAnnotation(annotation)
         print("removed")
     }
     
@@ -196,7 +189,15 @@ extension TravelLocationsMapViewController: MKMapViewDelegate {
         }
         
         if isEditModeEnabled {
-            mapView.removeAnnotation(annotation)
+            if let pins = fetchedResultsController.fetchedObjects as? [Pin] {
+                for pin in pins {
+                    if pin.coordinate.longitude == annotation.coordinate.longitude && pin.coordinate.latitude == annotation.coordinate.latitude {
+                        mapView.removeAnnotation(annotation)
+                        fetchedResultsController.managedObjectContext.deleteObject(pin)
+                        break
+                    }
+                }
+            }
         } else {
             performSegueWithIdentifier("ShowPhotoAlbum", sender: annotation)
         }
