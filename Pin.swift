@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 import MapKit
 
-class Pin: NSManagedObject {
+class Pin: NSManagedObject, MKAnnotation {
     
     var coordinate: CLLocationCoordinate2D {
         return CLLocationCoordinate2D(latitude: CLLocationDegrees(latitude!), longitude: CLLocationDegrees(longitude!))

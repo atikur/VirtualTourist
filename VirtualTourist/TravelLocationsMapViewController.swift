@@ -12,13 +12,16 @@ import CoreData
 
 class TravelLocationsMapViewController: UIViewController {
     
-    // MARK: - Properties
+    // MARK: - Outlets
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var bottomInfoView: UIView!
     @IBOutlet weak var editBarButton: UIBarButtonItem!
     
+    // MARK: - Properties
+    
     let userDefaults = NSUserDefaults.standardUserDefaults()
+    let stack = (UIApplication.sharedApplication().delegate as! AppDelegate).stack
     
     var isEditModeEnabled = false {
         didSet {
@@ -27,58 +30,31 @@ class TravelLocationsMapViewController: UIViewController {
         }
     }
     
-    var fetchedResultsController: NSFetchedResultsController!
-    
     // MARK: -
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         mapView.delegate = self
-        
+        mapView.addAnnotations(fetchAllPins())
+    
         isEditModeEnabled = false
         
+        loadMapWithSavedRegion()
         addGestureRecognizer()
-        loadMapData()
-        
-        loadPins()
     }
     
-    func loadPins() {
-        let stack = (UIApplication.sharedApplication().delegate as! AppDelegate).stack
-        
-        let fetchRequest = NSFetchRequest(entityName: "Pin")
-        fetchRequest.sortDescriptors = [
-            NSSortDescriptor(key: "latitude", ascending: true)
-        ]
-        
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: stack.context, sectionNameKeyPath: nil, cacheName: nil)
-        fetchedResultsController?.delegate = self
-        do {
-            try fetchedResultsController.performFetch()
-            guard let pins = fetchedResultsController.fetchedObjects as? [Pin] else {
-                return
-            }
-            for pin in pins {
-                addAnnotation(pin.coordinate)
-            }
-            
-        } catch {
-            print("Error while trying to perform a search.")
-        }
-    }
+    // MARK: - Actions
     
     @IBAction func editBarButtonTapped(sender: UIBarButtonItem) {
         isEditModeEnabled = !isEditModeEnabled
     }
     
-    func addGestureRecognizer() {
-        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(TravelLocationsMapViewController.longPressDetected(_:)))
-        longPressRecognizer.minimumPressDuration = 1.0
-        mapView.addGestureRecognizer(longPressRecognizer)
-    }
+    // MARK: - Drop Pin
     
+    // drop a pin when user performs a long press
     func longPressDetected(gestureRecognizer: UIGestureRecognizer) {
+        // user can't drop a pin in `Edit` mode
         guard !isEditModeEnabled else {
             return
         }
@@ -87,20 +63,33 @@ class TravelLocationsMapViewController: UIViewController {
             let touchPoint = gestureRecognizer.locationInView(mapView)
             let mapCoordinate = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
             
-            let pin = Pin(coordinate: mapCoordinate, context: fetchedResultsController.managedObjectContext)
-            print("Adding new pin at coordinate: \(pin.coordinate)")
+            let pin = Pin(coordinate: mapCoordinate, context: stack.context)
+            mapView.addAnnotation(pin)
         }
-    }
-    
-    func addAnnotation(coordinate: CLLocationCoordinate2D) {
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = coordinate
-        mapView.addAnnotation(annotation)
     }
     
     // MARK: - Save/Load Map Data
     
-    func loadMapData() {
+    // get pins from CoreData
+    func fetchAllPins() -> [Pin] {
+        var pins = [Pin]()
+        let fetchRequest = NSFetchRequest(entityName: "Pin")
+        
+        do {
+            let results = try stack.context.executeFetchRequest(fetchRequest)
+            if let results = results as? [Pin] {
+                pins = results
+            }
+        } catch {
+            print("Error while trying to fetch pins.")
+        }
+        
+        return pins
+    }
+    
+    // retrieve center coordinate and span from NSUserDefaults
+    func loadMapWithSavedRegion() {
+        // if it is first app launch, data isn't available
         guard userDefaults.boolForKey(UserDefaultKeys.IsAppLaunchedBefore) else {
             userDefaults.setBool(true, forKey: UserDefaultKeys.IsAppLaunchedBefore)
             userDefaults.synchronize()
@@ -114,7 +103,8 @@ class TravelLocationsMapViewController: UIViewController {
         mapView.setRegion(region, animated: true)
     }
     
-    func saveMapData(centerCoordinate: CLLocationCoordinate2D, regionSpan: MKCoordinateSpan) {
+    // save center coordinate and span to NSUserDefaults
+    func saveMapRegionData(centerCoordinate: CLLocationCoordinate2D, regionSpan: MKCoordinateSpan) {
         userDefaults.setDouble(centerCoordinate.latitude, forKey: UserDefaultKeys.CenterLatitude)
         userDefaults.setDouble(centerCoordinate.longitude, forKey: UserDefaultKeys.CenterLongitude)
         
@@ -133,45 +123,11 @@ class TravelLocationsMapViewController: UIViewController {
         }
     }
     
-    // MARK: -
-    
-    func fetchedResultsChangeInsert(anObject: AnyObject) {
-        guard let pin = anObject as? Pin else {
-            return
-        }
-        
-        addAnnotation(pin.coordinate)
-        print("added")
+    func addGestureRecognizer() {
+        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(TravelLocationsMapViewController.longPressDetected(_:)))
+        longPressRecognizer.minimumPressDuration = 1.0
+        mapView.addGestureRecognizer(longPressRecognizer)
     }
-    
-    func fetchedResultsChangeDelete(anObject: AnyObject) {
-        print("removed")
-    }
-    
-    func fetchedResultsChangeMove(anObject: AnyObject) {
-        print("move object")
-    }
-    
-    func fetchedResultsChangeUpdate(anObject: AnyObject) {
-        print("update object")
-    }
-}
-
-extension TravelLocationsMapViewController: NSFetchedResultsControllerDelegate {
-    
-    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
-        switch type {
-        case .Insert:
-            fetchedResultsChangeInsert(anObject)
-        case .Delete:
-            fetchedResultsChangeDelete(anObject)
-        case .Update:
-            fetchedResultsChangeUpdate(anObject)
-        case .Move:
-            fetchedResultsChangeMove(anObject)
-        }
-    }
-    
 }
 
 extension TravelLocationsMapViewController: MKMapViewDelegate {
@@ -180,26 +136,19 @@ extension TravelLocationsMapViewController: MKMapViewDelegate {
         let center = mapView.centerCoordinate
         let span = mapView.region.span
         
-        saveMapData(center, regionSpan: span)
+        saveMapRegionData(center, regionSpan: span)
     }
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
-        guard let annotation = view.annotation else {
+        guard let pin = view.annotation as? Pin else {
             return
         }
         
         if isEditModeEnabled {
-            if let pins = fetchedResultsController.fetchedObjects as? [Pin] {
-                for pin in pins {
-                    if pin.coordinate.longitude == annotation.coordinate.longitude && pin.coordinate.latitude == annotation.coordinate.latitude {
-                        mapView.removeAnnotation(annotation)
-                        fetchedResultsController.managedObjectContext.deleteObject(pin)
-                        break
-                    }
-                }
-            }
+            mapView.removeAnnotation(pin)
+            stack.context.deleteObject(pin)
         } else {
-            performSegueWithIdentifier("ShowPhotoAlbum", sender: annotation)
+            performSegueWithIdentifier("ShowPhotoAlbum", sender: pin)
         }
     }
 }
