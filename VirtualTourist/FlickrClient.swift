@@ -49,6 +49,25 @@ class FlickrClient: NSObject {
         return task
     }
     
+    func taskForImageWithUrlString(urlString: String, completionHandler: (data: NSData?, error: NSError?) -> Void) -> NSURLSessionTask {
+        let url = NSURL(string: urlString)!
+        let request = NSURLRequest(URL: url)
+        let task = session.dataTaskWithRequest(request) {
+            data, response, error in
+            
+            guard let data = data else {
+                completionHandler(data: nil, error: error)
+                return
+            }
+            
+            completionHandler(data: data, error: nil)
+        }
+        
+        task.resume()
+        
+        return task
+    }
+    
     // MARK: - Helpers
     
     private func parseDataWithCompletionHandler(data: NSData, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {

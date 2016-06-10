@@ -231,6 +231,8 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
         return cell
     }
     
+    // MARK: - Helpers
+    
     func configureCell(cell: PhotoCollectionViewCell, photo: Photo) {
         var image = UIImage(named: "placeholder")
         
@@ -240,21 +242,17 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
         } else {
             cell.activityIndicator.startAnimating()
             
-            let url = NSURL(string: photo.imageUrlString!)!
-            let request = NSURLRequest(URL: url)
-            let task = FlickrClient.sharedInstance.session.dataTaskWithRequest(request) {
-                data, response, error in
+            let task = FlickrClient.sharedInstance.taskForImageWithUrlString(photo.imageUrlString!) {
+                data, error in
                 
-                guard let data = data else {
-                    return
-                }
-                
-                guard let downloadedImage = UIImage(data: data) else {
-                    return
+                guard let data = data,
+                    downloadedImage = UIImage(data: data) else {
+                        return
                 }
                 
                 photo.imageData = data
                 
+                // update cell later on main thread
                 dispatch_async(dispatch_get_main_queue()) {
                     cell.activityIndicator.stopAnimating()
                     cell.activityIndicator.hidden = true
@@ -262,27 +260,10 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
                 }
             }
             
-            task.resume()
+            // any time its value is set, it cancels the previous NSURLSessionTask
+            cell.taskToCancelIfCellIsReused = task
         }
         
         cell.imageView.image = image
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }

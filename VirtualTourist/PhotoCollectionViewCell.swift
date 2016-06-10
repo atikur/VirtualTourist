@@ -13,4 +13,14 @@ class PhotoCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
+    // any time its value is set, it cancels the previous NSURLSessionTask
+    var taskToCancelIfCellIsReused: NSURLSessionTask? {
+        didSet {
+            if let taskToCancel = oldValue {
+                print("cancelled previous task")
+                taskToCancel.cancel()
+            }
+        }
+    }
+    
 }
