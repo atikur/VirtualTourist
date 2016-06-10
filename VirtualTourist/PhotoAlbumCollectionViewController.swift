@@ -55,6 +55,7 @@ class PhotoAlbumCollectionViewController: UIViewController {
         if storedPhotos.isEmpty {
             downloadPhotos()
         } else {
+            showActivityIndicator(false)
             print("found: \(storedPhotos.count)")
         }
     }
@@ -223,36 +224,65 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoCell", forIndexPath: indexPath) as! PhotoCollectionViewCell
-        cell.imageView.image = UIImage(named: "placeholder")
-        cell.activityIndicator.startAnimating()
+        let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
         
-//        let url = photoURLs[indexPath.row]
-//        let request = NSURLRequest(URL: url)
-//        let task = FlickrClient.sharedInstance.session.dataTaskWithRequest(request) {
-//            data, response, error in
-//            
-//            guard let data = data else {
-//                return
-//            }
-//            
-//            guard let image = UIImage(data: data) else {
-//                return
-//            }
-//            
-//            let photo = Photo(imageUrlString: data, context: self.stack.context)
-//            photo.pin = self.pin
-//            self.stack.save()
-//            
-//            print("photo :")
-//            
-//            dispatch_async(dispatch_get_main_queue()) {
-//                cell.activityIndicator.stopAnimating()
-//                cell.activityIndicator.hidden = true
-//                cell.imageView.image = image
-//            }
-//        }
-//        task.resume()
+        configureCell(cell, photo: photo)
         
         return cell
     }
+    
+    func configureCell(cell: PhotoCollectionViewCell, photo: Photo) {
+        var image = UIImage(named: "placeholder")
+        
+        if photo.imageData != nil {
+            cell.activityIndicator.hidden = true
+            image = UIImage(data: photo.imageData!)
+        } else {
+            cell.activityIndicator.startAnimating()
+            
+            let url = NSURL(string: photo.imageUrlString!)!
+            let request = NSURLRequest(URL: url)
+            let task = FlickrClient.sharedInstance.session.dataTaskWithRequest(request) {
+                data, response, error in
+                
+                guard let data = data else {
+                    return
+                }
+                
+                guard let downloadedImage = UIImage(data: data) else {
+                    return
+                }
+                
+                photo.imageData = data
+                
+                dispatch_async(dispatch_get_main_queue()) {
+                    cell.activityIndicator.stopAnimating()
+                    cell.activityIndicator.hidden = true
+                    cell.imageView.image = downloadedImage
+                }
+            }
+            
+            task.resume()
+        }
+        
+        cell.imageView.image = image
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }
