@@ -64,6 +64,8 @@ class TravelLocationsMapViewController: UIViewController {
             let mapCoordinate = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
             
             let pin = Pin(coordinate: mapCoordinate, context: stack.context)
+            stack.save()
+            
             mapView.addAnnotation(pin)
         }
     }
@@ -119,7 +121,7 @@ class TravelLocationsMapViewController: UIViewController {
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "ShowPhotoAlbum" {
             let destinationVC = segue.destinationViewController as! PhotoAlbumCollectionViewController
-            destinationVC.annoation = sender as! MKAnnotation
+            destinationVC.pin = sender as! Pin
         }
     }
     

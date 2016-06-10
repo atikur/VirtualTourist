@@ -10,7 +10,7 @@ import MapKit
 
 extension FlickrClient {
     
-    func getPhotosForLocation(location: CLLocationCoordinate2D, completionHandler: (photoURLs: [NSURL]?, errorString: String?) -> Void) {
+    func getPhotosForLocation(location: CLLocationCoordinate2D, completionHandler: (photoUrls: [String]?, errorString: String?) -> Void) {
         
         let methodParameters: [String: String] = [
             FlickParameterKeys.Method: FlickParameterValues.MethodSearch,
@@ -31,7 +31,7 @@ extension FlickrClient {
             result, error in
             
             guard error == nil else {
-                completionHandler(photoURLs: nil, errorString: error?.localizedDescription)
+                completionHandler(photoUrls: nil, errorString: error?.localizedDescription)
                 return
             }
             
@@ -39,25 +39,24 @@ extension FlickrClient {
                 photosDict = result[FlickResponseKeys.PhotosDictionary] as? [String: AnyObject],
                 photoArray = photosDict[FlickResponseKeys.PhotoArray] as? [[String: AnyObject]] else {
                     
-                    completionHandler(photoURLs: nil, errorString: "Can't get photos. Try again later.")
+                    completionHandler(photoUrls: nil, errorString: "Can't get photos. Try again later.")
                     return
             }
             
-            var photoURLs = [NSURL]()
+            var photoURLs = [String]()
             
             for item in photoArray {
-                if let urlStr = item[FlickResponseKeys.MediumURL] as? String,
-                    url = NSURL(string: urlStr) {
-                    photoURLs.append(url)
+                if let urlStr = item[FlickResponseKeys.MediumURL] as? String {
+                    photoURLs.append(urlStr)
                 }
             }
             
             guard !photoURLs.isEmpty else {
-                completionHandler(photoURLs: nil, errorString: "No photos available for this location.")
+                completionHandler(photoUrls: nil, errorString: "No photos available for this location.")
                 return
             }
             
-            completionHandler(photoURLs: photoURLs, errorString: nil)
+            completionHandler(photoUrls: photoURLs, errorString: nil)
         }
     }
     
