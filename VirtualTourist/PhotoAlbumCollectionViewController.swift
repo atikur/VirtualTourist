@@ -16,25 +16,23 @@ class PhotoAlbumCollectionViewController: UIViewController {
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
-    @IBOutlet weak var infoLabel: UILabel!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
+    
+    @IBOutlet weak var infoLabel: UILabel!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     // MARK: - Properties
     
-    let maxPhotos = 21
+    let maxNumberOfPhotos = 21
     
-    let minLineSpacing: CGFloat = 3.0
-    let minInterItemSpacing: CGFloat = 3.0
+    let coreDataStack = (UIApplication.sharedApplication().delegate as! AppDelegate).stack
     
-    let stack = (UIApplication.sharedApplication().delegate as! AppDelegate).stack
-    
-    var pin: Pin!
-    
+    // keep track of changes made to Core Data
     var insertedIndexPaths: [NSIndexPath]!
     var deletedIndexPaths: [NSIndexPath]!
     var updatedIndexPaths: [NSIndexPath]!
     
+    var pin: Pin!
     var fetchedResultsController: NSFetchedResultsController!
     
     // MARK: -
@@ -46,20 +44,20 @@ class PhotoAlbumCollectionViewController: UIViewController {
         collectionView.delegate = self
         
         infoLabel.hidden = true
+        activityIndicator.hidden = true
         
         configureMapView()
         configureFlowLayout(view.frame.size.width)
         
-        let storedPhotos = fetchAllPhotos()
-        
-        if storedPhotos.isEmpty {
+        // no saved photos found, need to download
+        if fetchAllPhotos().isEmpty {
             downloadPhotos()
-        } else {
-            showActivityIndicator(false)
-            print("found: \(storedPhotos.count)")
         }
     }
     
+    // MARK: - Fetch Photos
+    
+    // fetch photos from Core Data
     func fetchAllPhotos() -> [Photo] {
         var photos = [Photo]()
         
@@ -71,7 +69,7 @@ class PhotoAlbumCollectionViewController: UIViewController {
         let predicate = NSPredicate(format: "pin = %@", pin)
         fetchRequest.predicate = predicate
         
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: stack.context , sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: coreDataStack.context , sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self
         
         do {
@@ -86,31 +84,7 @@ class PhotoAlbumCollectionViewController: UIViewController {
         return photos
     }
     
-    func showActivityIndicator(show: Bool) {
-        activityIndicator.hidden = !show
-        
-        if show {
-            activityIndicator.startAnimating()
-        } else {
-            activityIndicator.stopAnimating()
-            activityIndicator.removeFromSuperview()
-        }
-    }
-    
-    func configureFlowLayout(width: CGFloat) {
-        let dimension = (width - (2 * minLineSpacing)) / 3.0
-        
-        flowLayout.minimumLineSpacing = minLineSpacing
-        flowLayout.minimumInteritemSpacing = minInterItemSpacing
-        flowLayout.itemSize = CGSizeMake(dimension, dimension)
-    }
-    
-    func configureMapView() {
-        let region = MKCoordinateRegion(center: pin.coordinate, span: MKCoordinateSpanMake(0.02, 0.02))
-        mapView.setRegion(region, animated: true)
-        
-        mapView.addAnnotation(pin)
-    }
+    // MARK: - Download Photos
     
     func downloadPhotos() {
         showActivityIndicator(true)
@@ -123,25 +97,23 @@ class PhotoAlbumCollectionViewController: UIViewController {
                 return
             }
             
-            self.displayPlaceholders(photoURLs)
+            self.insertPhotos(photoURLs)
         }
     }
     
-    func displayPlaceholders(photoURLs: [String]) {
-        print("Total photos: \(photoURLs.count)")
+    func insertPhotos(photoURLs: [String]) {
+        let photosCount = photoURLs.count > maxNumberOfPhotos ? maxNumberOfPhotos : photoURLs.count
         
-        let photosCount = photoURLs.count > maxPhotos ? maxPhotos : photoURLs.count
-        
-        stack.performBackgroundBatchOperation {_ in 
+        // insert new Photos in Core Data (with imageUrlString and empty imageData)
+        coreDataStack.performBackgroundBatchOperation {_ in
             for i in 0..<photosCount {
-                let photo = Photo(imageUrlString: photoURLs[i], context: self.stack.context)
+                let photo = Photo(imageUrlString: photoURLs[i], context: self.coreDataStack.context)
                 photo.pin = self.pin
             }
         }
         
         dispatch_async(dispatch_get_main_queue()) {
             self.showActivityIndicator(false)
-            self.collectionView.reloadData()
         }
     }
     
@@ -157,9 +129,7 @@ class PhotoAlbumCollectionViewController: UIViewController {
         }
     }
     
-    func getSavedPhotos() {
-        print("get previously saved photos")
-    }
+    // MARK: -
     
     override func willRotateToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
         if toInterfaceOrientation.isLandscape {
@@ -168,12 +138,42 @@ class PhotoAlbumCollectionViewController: UIViewController {
             configureFlowLayout(min(view.frame.size.width, view.frame.size.height))
         }
     }
+    
+    // MARK: - Configure UI
+    
+    func showActivityIndicator(show: Bool) {
+        activityIndicator.hidden = !show
+        
+        if show {
+            activityIndicator.startAnimating()
+        } else {
+            activityIndicator.stopAnimating()
+            activityIndicator.removeFromSuperview()
+        }
+    }
+    
+    func configureFlowLayout(width: CGFloat) {
+        let minLineSpacing: CGFloat = 3.0
+        let minInterItemSpacing: CGFloat = 3.0
+        
+        let dimension = (width - (2 * minLineSpacing)) / 3.0
+        
+        flowLayout.minimumLineSpacing = minLineSpacing
+        flowLayout.minimumInteritemSpacing = minInterItemSpacing
+        flowLayout.itemSize = CGSizeMake(dimension, dimension)
+    }
+    
+    func configureMapView() {
+        let region = MKCoordinateRegion(center: pin.coordinate, span: MKCoordinateSpanMake(0.02, 0.02))
+        mapView.setRegion(region, animated: true)
+        
+        mapView.addAnnotation(pin)
+    }
 }
 
 extension PhotoAlbumCollectionViewController: NSFetchedResultsControllerDelegate {
     
     func controllerWillChangeContent(controller: NSFetchedResultsController) {
-        print("will change")
         insertedIndexPaths = [NSIndexPath]()
         deletedIndexPaths = [NSIndexPath]()
         updatedIndexPaths = [NSIndexPath]()
@@ -186,13 +186,10 @@ extension PhotoAlbumCollectionViewController: NSFetchedResultsControllerDelegate
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
         case .Insert:
-            print("insert an item")
             insertedIndexPaths.append(newIndexPath!)
         case .Delete:
-            print("delete an item")
             deletedIndexPaths.append(indexPath!)
         case .Update:
-            print("update an item")
             updatedIndexPaths.append(indexPath!)
         case .Move:
             break
@@ -200,10 +197,8 @@ extension PhotoAlbumCollectionViewController: NSFetchedResultsControllerDelegate
     }
     
     func controllerDidChangeContent(controller: NSFetchedResultsController) {
-        print("in cotrollerDidChangeContent. changes.count: \(insertedIndexPaths.count + deletedIndexPaths.count)")
         
         collectionView.performBatchUpdates({
-            
             self.collectionView.deleteItemsAtIndexPaths(self.deletedIndexPaths)
             self.collectionView.insertItemsAtIndexPaths(self.insertedIndexPaths)
             self.collectionView.reloadItemsAtIndexPaths(self.updatedIndexPaths)
