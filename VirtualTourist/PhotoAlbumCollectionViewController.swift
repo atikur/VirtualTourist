@@ -177,6 +177,10 @@ extension PhotoAlbumCollectionViewController: NSFetchedResultsControllerDelegate
         insertedIndexPaths = [NSIndexPath]()
         deletedIndexPaths = [NSIndexPath]()
         updatedIndexPaths = [NSIndexPath]()
+        
+        // WORKAROUND for crash issue [when updating non-visible collection view with asynchronous operation]
+        // https://devforums.apple.com/message/908659#908659
+        collectionView.numberOfSections()
     }
     
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
@@ -200,17 +204,9 @@ extension PhotoAlbumCollectionViewController: NSFetchedResultsControllerDelegate
         
         collectionView.performBatchUpdates({
             
-            for indexPath in self.insertedIndexPaths {
-                self.collectionView.insertItemsAtIndexPaths([indexPath])
-            }
-            
-            for indexPath in self.deletedIndexPaths {
-                self.collectionView.deleteItemsAtIndexPaths([indexPath])
-            }
-            
-            for indexPath in self.updatedIndexPaths {
-                self.collectionView.reloadItemsAtIndexPaths([indexPath])
-            }
+            self.collectionView.deleteItemsAtIndexPaths(self.deletedIndexPaths)
+            self.collectionView.insertItemsAtIndexPaths(self.insertedIndexPaths)
+            self.collectionView.reloadItemsAtIndexPaths(self.updatedIndexPaths)
             
         }, completion: nil)
     }
@@ -263,7 +259,7 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
             // any time its value is set, it cancels the previous NSURLSessionTask
             cell.taskToCancelIfCellIsReused = task
         }
-        
+
         cell.imageView.image = image
     }
 }
