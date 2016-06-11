@@ -149,6 +149,7 @@ extension TravelLocationsMapViewController: MKMapViewDelegate {
         if isEditModeEnabled {
             mapView.removeAnnotation(pin)
             stack.context.deleteObject(pin)
+            stack.save()
         } else {
             mapView.deselectAnnotation(pin, animated: false)
             performSegueWithIdentifier("ShowPhotoAlbum", sender: pin)
