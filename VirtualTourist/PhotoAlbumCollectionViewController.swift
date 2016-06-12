@@ -66,6 +66,31 @@ class PhotoAlbumCollectionViewController: UIViewController {
     // MARK: - Actions
     
     @IBAction func bottomButtonPressed(sender: UIBarButtonItem) {
+        // get new collection
+        if selectedIndexPaths.isEmpty {
+            print("get new collection")
+        }
+        // delete selected pictures
+        else {
+            deleteSelectedPictures()
+        }
+    }
+    
+    func deleteSelectedPictures() {
+        var photosToDelete = [Photo]()
+        
+        for indexPath in selectedIndexPaths {
+            photosToDelete.append(fetchedResultsController.objectAtIndexPath(indexPath) as! Photo)
+        }
+        
+        coreDataStack.performBackgroundBatchOperation {_ in
+            for photo in photosToDelete {
+               self.coreDataStack.context.deleteObject(photo)
+            }
+            self.coreDataStack.save()
+        }
+        
+        selectedIndexPaths = []
     }
     
     // MARK: - Fetch Photos
