@@ -18,7 +18,7 @@ class PhotoAlbumCollectionViewController: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     
-    @IBOutlet weak var newCollectionButton: UIButton!
+    @IBOutlet weak var bottomButton: UIBarButtonItem!
     @IBOutlet weak var infoLabel: UILabel!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
@@ -32,6 +32,13 @@ class PhotoAlbumCollectionViewController: UIViewController {
     var insertedIndexPaths: [NSIndexPath]!
     var deletedIndexPaths: [NSIndexPath]!
     var updatedIndexPaths: [NSIndexPath]!
+    
+    // keeps track of all the selected indexPaths
+    var selectedIndexPaths = [NSIndexPath]() {
+        didSet {
+            bottomButton.title = selectedIndexPaths.isEmpty ? "New Collection" : "Remove Selected Pictures"
+        }
+    }
     
     var pin: Pin!
     var fetchedResultsController: NSFetchedResultsController!
@@ -58,7 +65,7 @@ class PhotoAlbumCollectionViewController: UIViewController {
     
     // MARK: - Actions
     
-    @IBAction func newCollectionButtonTapped(sender: UIButton) {
+    @IBAction func bottomButtonPressed(sender: UIBarButtonItem) {
     }
     
     // MARK: - Fetch Photos
@@ -93,7 +100,7 @@ class PhotoAlbumCollectionViewController: UIViewController {
     // MARK: - Download Photos
     
     func downloadPhotos() {
-        newCollectionButton.enabled = false
+        bottomButton.enabled = false
         showActivityIndicator(true)
         
         FlickrClient.sharedInstance.getPhotosForLocation(pin.coordinate) {
@@ -122,7 +129,7 @@ class PhotoAlbumCollectionViewController: UIViewController {
         
         dispatch_async(dispatch_get_main_queue()) {
             self.showActivityIndicator(false)
-            self.newCollectionButton.enabled = true
+            self.bottomButton.enabled = true
         }
     }
     
@@ -231,6 +238,24 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
         return cell
     }
     
+    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+        let cell = collectionView.cellForItemAtIndexPath(indexPath) as! PhotoCollectionViewCell
+        let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
+        
+        // allow users to select cells with image
+        guard photo.imageData != nil else {
+            return
+        }
+        
+        if let index = selectedIndexPaths.indexOf(indexPath) {
+            selectedIndexPaths.removeAtIndex(index)
+        } else {
+            selectedIndexPaths.append(indexPath)
+        }
+        
+        configureCellSelection(cell, indexPath: indexPath)
+    }
+    
     // MARK: - Helpers
     
     func configureCell(cell: PhotoCollectionViewCell, forIndexPath indexPath: NSIndexPath, withPhoto photo: Photo) {
@@ -271,5 +296,15 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
         }
 
         cell.imageView.image = image
+        
+        configureCellSelection(cell, indexPath: indexPath)
+    }
+    
+    func configureCellSelection(cell: PhotoCollectionViewCell, indexPath: NSIndexPath) {
+        if let _ = selectedIndexPaths.indexOf(indexPath) {
+            cell.alpha = 0.3
+        } else {
+            cell.alpha = 1.0
+        }
     }
 }
