@@ -217,15 +217,17 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("PhotoCell", forIndexPath: indexPath) as! PhotoCollectionViewCell
         let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
         
-        configureCell(cell, photo: photo)
+        configureCell(cell, forIndexPath: indexPath, withPhoto: photo)
         
         return cell
     }
     
     // MARK: - Helpers
     
-    func configureCell(cell: PhotoCollectionViewCell, photo: Photo) {
+    func configureCell(cell: PhotoCollectionViewCell, forIndexPath indexPath: NSIndexPath, withPhoto photo: Photo) {
         var image = UIImage(named: "placeholder")
+        
+        cell.imageView.image = nil
         
         if photo.imageData != nil {
             cell.activityIndicator.hidden = true
@@ -245,9 +247,12 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
                 
                 // update cell later on main thread
                 dispatch_async(dispatch_get_main_queue()) {
-                    cell.activityIndicator.stopAnimating()
-                    cell.activityIndicator.hidden = true
-                    cell.imageView.image = downloadedImage
+                    // make sure cell for the item is still visible
+                    if let updateCell = self.collectionView.cellForItemAtIndexPath(indexPath) as? PhotoCollectionViewCell {
+                        updateCell.activityIndicator.stopAnimating()
+                        updateCell.activityIndicator.hidden = true
+                        updateCell.imageView.image = downloadedImage
+                    }
                 }
             }
             

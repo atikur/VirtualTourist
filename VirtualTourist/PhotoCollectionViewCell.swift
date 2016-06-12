@@ -17,7 +17,6 @@ class PhotoCollectionViewCell: UICollectionViewCell {
     var taskToCancelIfCellIsReused: NSURLSessionTask? {
         didSet {
             if let taskToCancel = oldValue {
-                print("cancelled previous task")
                 taskToCancel.cancel()
             }
         }
