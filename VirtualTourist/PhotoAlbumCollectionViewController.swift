@@ -68,17 +68,18 @@ class PhotoAlbumCollectionViewController: UIViewController {
     // MARK: - Actions
     
     @IBAction func bottomButtonPressed(sender: UIBarButtonItem) {
-        // get new collection
+        // 'New Collection' button tapped
         if selectedIndexPaths.isEmpty {
-            print("get new collection")
+            deleteAllPhotos()
+            downloadPhotos()
         }
-        // delete selected pictures
+        // 'Remove Selected Photos' button tapped
         else {
-            deleteSelectedPictures()
+            deleteSelectedPhotos()
         }
     }
     
-    func deleteSelectedPictures() {
+    func deleteSelectedPhotos() {
         var photosToDelete = [Photo]()
         
         for indexPath in selectedIndexPaths {
@@ -93,6 +94,15 @@ class PhotoAlbumCollectionViewController: UIViewController {
         }
         
         selectedIndexPaths = []
+    }
+    
+    func deleteAllPhotos() {
+        coreDataStack.performBackgroundBatchOperation {_ in
+            for photo in self.fetchedResultsController.fetchedObjects as! [Photo] {
+                self.coreDataStack.context.deleteObject(photo)
+            }
+            self.coreDataStack.save()
+        }
     }
     
     // MARK: - Fetch Photos
@@ -159,8 +169,8 @@ class PhotoAlbumCollectionViewController: UIViewController {
         }
         
         dispatch_async(dispatch_get_main_queue()) {
-            self.showActivityIndicator(false)
             self.bottomButton.enabled = true
+            self.showActivityIndicator(false)
         }
     }
     
@@ -195,7 +205,6 @@ class PhotoAlbumCollectionViewController: UIViewController {
             activityIndicator.startAnimating()
         } else {
             activityIndicator.stopAnimating()
-            activityIndicator.removeFromSuperview()
         }
     }
     
@@ -297,6 +306,7 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
             cell.activityIndicator.hidden = true
             image = UIImage(data: photo.imageData!)
         } else {
+            cell.activityIndicator.hidden = false
             cell.activityIndicator.startAnimating()
             
             let task = FlickrClient.sharedInstance.taskForImageWithUrlString(photo.imageUrlString!) {
@@ -310,6 +320,8 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
                 photo.imageData = data
                 self.coreDataStack.save()
                 
+                self.remainingPhotosToDownload -= 1
+                
                 // update cell later on main thread
                 dispatch_async(dispatch_get_main_queue()) {
                     // make sure cell for the item is still visible
@@ -317,8 +329,6 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
                         updateCell.activityIndicator.stopAnimating()
                         updateCell.activityIndicator.hidden = true
                         updateCell.imageView.image = downloadedImage
-                        
-                        self.remainingPhotosToDownload -= 1
                     }
                 }
             }
