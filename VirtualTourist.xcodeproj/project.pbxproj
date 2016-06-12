@@ -78,9 +78,7 @@
 			children = (
 				245B29EC1CFF1AB000F39F1D /* AppDelegate.swift */,
 				24CEAB0A1D06CDB10076453B /* Models */,
-				241092931D00983100C6E00C /* FlickrClient.swift */,
-				2473B9351D018ADB0084DAB7 /* FlickrClient+Constants.swift */,
-				2473B9391D0193490084DAB7 /* FlickrClient+Convenience.swift */,
+				24CFED3D1D0D7C3E00330D9C /* Flickr */,
 				245B29FE1CFF1D4F00F39F1D /* TravelLocationsMapViewController.swift */,
 				24DFE5F91D01E8CB00278D9B /* PhotoAlbumCollectionViewController.swift */,
 				24D1F3491D0695C0008567BB /* PhotoCollectionViewCell.swift */,
@@ -103,6 +101,16 @@
 				24CEAAFF1D06CB990076453B /* Model.xcdatamodeld */,
 			);
 			name = Models;
+			sourceTree = "<group>";
+		};
+		24CFED3D1D0D7C3E00330D9C /* Flickr */ = {
+			isa = PBXGroup;
+			children = (
+				241092931D00983100C6E00C /* FlickrClient.swift */,
+				2473B9351D018ADB0084DAB7 /* FlickrClient+Constants.swift */,
+				2473B9391D0193490084DAB7 /* FlickrClient+Convenience.swift */,
+			);
+			name = Flickr;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
