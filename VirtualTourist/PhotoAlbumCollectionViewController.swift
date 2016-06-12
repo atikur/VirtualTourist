@@ -43,6 +43,8 @@ class PhotoAlbumCollectionViewController: UIViewController {
     var pin: Pin!
     var fetchedResultsController: NSFetchedResultsController!
     
+    var remainingPhotosToDownload = 0
+    
     // MARK: -
     
     override func viewDidLoad() {
@@ -142,6 +144,7 @@ class PhotoAlbumCollectionViewController: UIViewController {
     
     func insertPhotos(photoURLs: [String]) {
         let photosCount = photoURLs.count > maxNumberOfPhotos ? maxNumberOfPhotos : photoURLs.count
+        remainingPhotosToDownload = photosCount
         
         // insert new Photos in Core Data (with imageUrlString and empty imageData)
         coreDataStack.performBackgroundBatchOperation {_ in
@@ -265,10 +268,9 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         let cell = collectionView.cellForItemAtIndexPath(indexPath) as! PhotoCollectionViewCell
-        let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
         
-        // allow users to select cells with image
-        guard photo.imageData != nil else {
+        // allow user to select cells when all photos are downloaded
+        guard remainingPhotosToDownload == 0 else {
             return
         }
         
@@ -312,6 +314,8 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
                         updateCell.activityIndicator.stopAnimating()
                         updateCell.activityIndicator.hidden = true
                         updateCell.imageView.image = downloadedImage
+                        
+                        self.remainingPhotosToDownload -= 1
                     }
                 }
             }

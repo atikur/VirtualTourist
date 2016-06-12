@@ -12,7 +12,7 @@ import CoreData
 
 class Photo: NSManagedObject {
 
-    convenience init(imageUrlString: String?, context: NSManagedObjectContext) {
+    convenience init(imageUrlString: String, context: NSManagedObjectContext) {
         if let entity = NSEntityDescription.entityForName("Photo", inManagedObjectContext: context) {
             self.init(entity: entity, insertIntoManagedObjectContext: context)
             self.imageUrlString = imageUrlString
