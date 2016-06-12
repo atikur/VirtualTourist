@@ -33,17 +33,17 @@ class PhotoAlbumCollectionViewController: UIViewController {
     var deletedIndexPaths: [NSIndexPath]!
     var updatedIndexPaths: [NSIndexPath]!
     
+    var pin: Pin!
+    var fetchedResultsController: NSFetchedResultsController!
+    
+    var remainingPhotosToDownload = 0
+    
     // keeps track of all the selected indexPaths
     var selectedIndexPaths = [NSIndexPath]() {
         didSet {
             bottomButton.title = selectedIndexPaths.isEmpty ? "New Collection" : "Remove Selected Pictures"
         }
     }
-    
-    var pin: Pin!
-    var fetchedResultsController: NSFetchedResultsController!
-    
-    var remainingPhotosToDownload = 0
     
     // MARK: -
     
@@ -76,32 +76,6 @@ class PhotoAlbumCollectionViewController: UIViewController {
         // 'Remove Selected Photos' button tapped
         else {
             deleteSelectedPhotos()
-        }
-    }
-    
-    func deleteSelectedPhotos() {
-        var photosToDelete = [Photo]()
-        
-        for indexPath in selectedIndexPaths {
-            photosToDelete.append(fetchedResultsController.objectAtIndexPath(indexPath) as! Photo)
-        }
-        
-        coreDataStack.performBackgroundBatchOperation {_ in
-            for photo in photosToDelete {
-               self.coreDataStack.context.deleteObject(photo)
-            }
-            self.coreDataStack.save()
-        }
-        
-        selectedIndexPaths = []
-    }
-    
-    func deleteAllPhotos() {
-        coreDataStack.performBackgroundBatchOperation {_ in
-            for photo in self.fetchedResultsController.fetchedObjects as! [Photo] {
-                self.coreDataStack.context.deleteObject(photo)
-            }
-            self.coreDataStack.save()
         }
     }
     
@@ -183,6 +157,34 @@ class PhotoAlbumCollectionViewController: UIViewController {
             self.showActivityIndicator(false)
             self.infoLabel.text = errorString
             self.infoLabel.hidden = false
+        }
+    }
+    
+    // MARK: - Delete Photos
+    
+    func deleteSelectedPhotos() {
+        var photosToDelete = [Photo]()
+        
+        for indexPath in selectedIndexPaths {
+            photosToDelete.append(fetchedResultsController.objectAtIndexPath(indexPath) as! Photo)
+        }
+        
+        coreDataStack.performBackgroundBatchOperation {_ in
+            for photo in photosToDelete {
+                self.coreDataStack.context.deleteObject(photo)
+            }
+            self.coreDataStack.save()
+        }
+        
+        selectedIndexPaths = []
+    }
+    
+    func deleteAllPhotos() {
+        coreDataStack.performBackgroundBatchOperation {_ in
+            for photo in self.fetchedResultsController.fetchedObjects as! [Photo] {
+                self.coreDataStack.context.deleteObject(photo)
+            }
+            self.coreDataStack.save()
         }
     }
     
