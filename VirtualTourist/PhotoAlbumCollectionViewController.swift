@@ -143,13 +143,16 @@ class PhotoAlbumCollectionViewController: UIViewController {
     }
     
     func insertPhotos(photoURLs: [String]) {
-        let photosCount = photoURLs.count > maxNumberOfPhotos ? maxNumberOfPhotos : photoURLs.count
+        var randomPhotoUrls = photoURLs
+        randomPhotoUrls.shuffle()
+        
+        let photosCount = randomPhotoUrls.count > maxNumberOfPhotos ? maxNumberOfPhotos : randomPhotoUrls.count
         remainingPhotosToDownload = photosCount
         
         // insert new Photos in Core Data (with imageUrlString and empty imageData)
         coreDataStack.performBackgroundBatchOperation {_ in
             for i in 0..<photosCount {
-                let photo = Photo(imageUrlString: photoURLs[i], context: self.coreDataStack.context)
+                let photo = Photo(imageUrlString: randomPhotoUrls[i], context: self.coreDataStack.context)
                 photo.pin = self.pin
             }
             self.coreDataStack.save()
@@ -334,6 +337,18 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
             cell.alpha = 0.3
         } else {
             cell.alpha = 1.0
+        }
+    }
+}
+
+extension Array {
+    
+    mutating func shuffle() {
+        for i in 0..<(count - 1) {
+            let j = Int(arc4random_uniform(UInt32(count - i))) + i
+            if i != j {
+                swap(&self[i], &self[j])
+            }
         }
     }
 }
