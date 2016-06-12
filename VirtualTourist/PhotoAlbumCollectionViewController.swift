@@ -18,6 +18,7 @@ class PhotoAlbumCollectionViewController: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     
+    @IBOutlet weak var newCollectionButton: UIButton!
     @IBOutlet weak var infoLabel: UILabel!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
@@ -55,6 +56,11 @@ class PhotoAlbumCollectionViewController: UIViewController {
         }
     }
     
+    // MARK: - Actions
+    
+    @IBAction func newCollectionButtonTapped(sender: UIButton) {
+    }
+    
     // MARK: - Fetch Photos
     
     // fetch photos from Core Data
@@ -87,6 +93,7 @@ class PhotoAlbumCollectionViewController: UIViewController {
     // MARK: - Download Photos
     
     func downloadPhotos() {
+        newCollectionButton.enabled = false
         showActivityIndicator(true)
         
         FlickrClient.sharedInstance.getPhotosForLocation(pin.coordinate) {
@@ -110,10 +117,12 @@ class PhotoAlbumCollectionViewController: UIViewController {
                 let photo = Photo(imageUrlString: photoURLs[i], context: self.coreDataStack.context)
                 photo.pin = self.pin
             }
+            self.coreDataStack.save()
         }
         
         dispatch_async(dispatch_get_main_queue()) {
             self.showActivityIndicator(false)
+            self.newCollectionButton.enabled = true
         }
     }
     
@@ -244,6 +253,7 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
                 }
                 
                 photo.imageData = data
+                self.coreDataStack.save()
                 
                 // update cell later on main thread
                 dispatch_async(dispatch_get_main_queue()) {

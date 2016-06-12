@@ -46,7 +46,7 @@ extension FlickrClient {
             var photoURLs = [String]()
             
             for item in photoArray {
-                if let urlStr = item[FlickResponseKeys.MediumURL] as? String {
+                if let urlStr = item[FlickResponseKeys.MediumURL] as? String where !urlStr.isEmpty {
                     photoURLs.append(urlStr)
                 }
             }
