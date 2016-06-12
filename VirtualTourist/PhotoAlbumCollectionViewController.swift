@@ -319,8 +319,10 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
                         return
                 }
                 
-                photo.imageData = data
-                self.coreDataStack.save()
+                self.coreDataStack.performBackgroundBatchOperation {_ in
+                    photo.imageData = data
+                    self.coreDataStack.save()
+                }
                 
                 self.remainingPhotosToDownload -= 1
                 
