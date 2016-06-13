@@ -133,8 +133,8 @@ class PhotoAlbumCollectionViewController: UIViewController {
         let photosCount = randomPhotoUrls.count > maxNumberOfPhotos ? maxNumberOfPhotos : randomPhotoUrls.count
         remainingPhotosToDownload = photosCount
         
-        // insert new Photos in Core Data (with imageUrlString and empty imageData)
-        coreDataStack.performBackgroundBatchOperation {_ in
+        dispatch_async(dispatch_get_main_queue()) {
+            // insert new Photos in Core Data (with imageUrlString and empty imageData)
             for i in 0..<photosCount {
                 let photo = Photo(imageUrlString: randomPhotoUrls[i], context: self.coreDataStack.context)
                 photo.pin = self.pin
@@ -169,23 +169,19 @@ class PhotoAlbumCollectionViewController: UIViewController {
             photosToDelete.append(fetchedResultsController.objectAtIndexPath(indexPath) as! Photo)
         }
         
-        coreDataStack.performBackgroundBatchOperation {_ in
-            for photo in photosToDelete {
-                self.coreDataStack.context.deleteObject(photo)
-            }
-            self.coreDataStack.save()
+        for photo in photosToDelete {
+            coreDataStack.context.deleteObject(photo)
         }
+        coreDataStack.save()
         
         selectedIndexPaths = []
     }
     
     func deleteAllPhotos() {
-        coreDataStack.performBackgroundBatchOperation {_ in
-            for photo in self.fetchedResultsController.fetchedObjects as! [Photo] {
-                self.coreDataStack.context.deleteObject(photo)
-            }
-            self.coreDataStack.save()
+        for photo in fetchedResultsController.fetchedObjects as! [Photo] {
+            coreDataStack.context.deleteObject(photo)
         }
+        coreDataStack.save()
     }
     
     // MARK: -
@@ -319,15 +315,13 @@ extension PhotoAlbumCollectionViewController: UICollectionViewDataSource, UIColl
                         return
                 }
                 
-                self.coreDataStack.performBackgroundBatchOperation {_ in
-                    photo.imageData = data
-                    self.coreDataStack.save()
-                }
-                
                 self.remainingPhotosToDownload -= 1
                 
-                // update cell later on main thread
+                // update cell & photo model on main thread
                 dispatch_async(dispatch_get_main_queue()) {
+                    photo.imageData = data
+                    self.coreDataStack.save()
+                    
                     // make sure cell for the item is still visible
                     if let updateCell = self.collectionView.cellForItemAtIndexPath(indexPath) as? PhotoCollectionViewCell {
                         updateCell.activityIndicator.stopAnimating()
